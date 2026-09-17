@@ -1,0 +1,1721 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cahier Mobile Money</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap');
+
+  :root {
+    --bg: #f6f4ef;
+    --card: #ffffff;
+    --hero: #1c1c1a;
+    --ink: #1c1c1a;
+    --ink-soft: #7a7a74;
+    --line: #ece9e1;
+    --accent: #0d9488;
+    --accent-soft: #e3f5f2;
+    --orange-bg: #fde3c8; --orange-text: #c2650a;
+    --moov-bg: #d7f2e3; --moov-text: #0f7a4a;
+    --mtn-bg: #fbd7d7; --mtn-text: #c62828;
+    --wave-bg: #dbe3fb; --wave-text: #2148c0;
+    --comm: #b3720f;
+    --comm-soft: #fdf1de;
+    --danger: #c0392b;
+    --danger-soft: #fbeaea;
+    --good: #0d9488;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 18px 14px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .trends-card {
+    border: none;
+    border-radius: 20px;
+    padding: 18px 16px;
+    background: var(--card);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 16px;
+  }
+
+  .trends-section-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin: 18px 0 10px;
+  }
+
+  .trends-section-title:first-child { margin-top: 0; }
+
+  .trend-row {
+    margin-bottom: 10px;
+  }
+
+  .trend-row-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    margin-bottom: 4px;
+  }
+
+  .trend-row-label .name { color: var(--ink); font-weight: 600; }
+  .trend-row-label .stat { color: var(--ink-soft); }
+
+  .trend-bar-bg {
+    background: var(--bg);
+    border-radius: 8px;
+    height: 8px;
+    overflow: hidden;
+  }
+
+  .trend-bar-fill {
+    height: 100%;
+    border-radius: 8px;
+    background: var(--accent);
+  }
+
+  .trend-empty {
+    text-align: center;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    padding: 12px 0;
+  }
+
+  .book {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+
+  header.title {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+
+  header.title h1 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 1.4rem;
+    margin: 0;
+    letter-spacing: -0.3px;
+  }
+
+  header.title .today {
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  /* Tabs opérateurs — pilules arrondies */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .tab {
+    flex: 1;
+    padding: 11px 6px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    border: none;
+    background: var(--card);
+    color: var(--ink-soft);
+    cursor: pointer;
+    border-radius: 14px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.15s ease;
+  }
+
+  .tab.active {
+    color: var(--ink);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.09);
+    transform: translateY(-1px);
+  }
+
+  .tab[data-op="orange"].active { background: var(--orange-bg); color: var(--orange-text); }
+  .tab[data-op="moov"].active { background: var(--moov-bg); color: var(--moov-text); }
+  .tab[data-op="mtn"].active { background: var(--mtn-bg); color: var(--mtn-text); }
+  .tab[data-op="wave"].active { background: var(--wave-bg); color: var(--wave-text); }
+
+  .panel {
+    border: none;
+    border-radius: 20px;
+    padding: 18px 16px;
+    background: var(--card);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    margin-bottom: 18px;
+  }
+
+  .op-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin: 0 0 14px;
+    letter-spacing: -0.2px;
+  }
+
+  .balances {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .balance-card {
+    border: none;
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 10px 8px;
+    text-align: center;
+  }
+
+  .balance-card .label {
+    font-size: 0.65rem;
+    color: var(--ink-soft);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .balance-card .value {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.92rem;
+    letter-spacing: -0.2px;
+  }
+
+  .balance-card.solde .value { font-size: 1rem; }
+  .value.pos { color: var(--good); }
+  .value.neg { color: var(--danger); }
+  .value.comm { color: var(--comm); }
+
+  form.entry {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: flex-end;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 90px;
+  }
+
+  .field label {
+    font-size: 0.68rem;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+
+  .seg {
+    display: flex;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--bg);
+    padding: 3px;
+    gap: 3px;
+  }
+
+  .seg button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 9px 4px;
+    border-radius: 9px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+
+  .seg button.selected.depot { background: var(--good); color: white; }
+  .seg button.selected.retrait { background: var(--danger); color: white; }
+
+  input[type="number"], input[type="text"], input[type="date"] {
+    border: 1.5px solid var(--line);
+    border-radius: 10px;
+    padding: 10px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    background: var(--card);
+    color: var(--ink);
+    width: 100%;
+  }
+
+  input:focus { outline: none; border-color: var(--accent); }
+
+  .add-btn {
+    border: none;
+    background: var(--ink);
+    color: white;
+    padding: 11px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .add-btn:active { transform: translateY(1px); }
+
+  .hist-title {
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    font-weight: 500;
+    margin: 4px 0 10px;
+    padding-top: 14px;
+    border-top: 1px solid var(--line);
+  }
+
+  .entry-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .entry-row .date {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    width: 54px;
+    flex-shrink: 0;
+  }
+
+  .entry-row .type-badge {
+    font-size: 0.66rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  .type-badge.depot { background: var(--accent-soft); color: var(--good); }
+  .type-badge.retrait { background: var(--danger-soft); color: var(--danger); }
+
+  .entry-row .note {
+    flex: 1;
+    font-size: 0.82rem;
+    color: var(--ink);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .entry-row .amount {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    text-align: right;
+  }
+
+  .entry-row .del {
+    border: none;
+    background: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 0.95rem;
+    padding: 2px 4px;
+    flex-shrink: 0;
+  }
+
+  .empty {
+    text-align: center;
+    padding: 28px 8px;
+    color: var(--ink-soft);
+    font-size: 0.85rem;
+  }
+
+  .global-summary-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+
+  .global-summary {
+    flex: 1;
+    border: none;
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    background: var(--card);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  }
+
+  .global-summary:first-child {
+    background: var(--hero);
+    color: white;
+  }
+
+  .global-summary .g-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+  }
+
+  .global-summary:first-child .g-label {
+    color: rgba(255,255,255,0.6);
+  }
+
+  .global-summary .g-value {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 1.25rem;
+    letter-spacing: -0.4px;
+  }
+
+  .global-summary:first-child .g-value {
+    color: white;
+  }
+
+  .global-summary .g-value.comm { color: var(--comm); }
+
+  .pdf-btn {
+    display: block;
+    width: 100%;
+    border: none;
+    background: var(--card);
+    color: var(--ink);
+    padding: 13px;
+    border-radius: 14px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.82rem;
+    cursor: pointer;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .pdf-btn:active { transform: translateY(1px); }
+
+  .period-row {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .period-btn {
+    flex: 1;
+    padding: 9px 4px;
+    border: none;
+    background: var(--card);
+    color: var(--ink-soft);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+
+  .period-btn.active {
+    background: var(--ink);
+    color: white;
+  }
+
+  .period-label {
+    font-size: 0.72rem;
+    color: var(--ink-soft);
+    margin: -4px 0 12px;
+    text-align: center;
+  }
+
+  .comm-day-card {
+    border: none;
+    border-radius: 16px;
+    background: var(--comm-soft);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+  }
+
+  .cd-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    padding: 4px 0;
+  }
+
+  .cd-label { color: var(--ink-soft); font-size: 0.76rem; font-weight: 500; }
+  .cd-value { font-family: 'Inter', sans-serif; font-weight: 700; }
+  .cd-value.comm { color: var(--comm); }
+
+  .cd-note {
+    font-size: 0.7rem;
+    color: var(--ink-soft);
+    margin: 4px 0 10px;
+  }
+
+  .cd-input-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 8px;
+  }
+
+  .cd-input-row input {
+    flex: 1;
+    border: 1.5px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    padding: 9px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    background: white;
+  }
+
+  .cd-record-btn, .cd-edit-btn {
+    border: none;
+    background: var(--comm);
+    color: white;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .cd-edit-btn {
+    background: transparent;
+    color: var(--comm);
+    margin-top: 6px;
+    padding-left: 0;
+  }
+
+  .bareme-toggle {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-size: 0.7rem;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 6px 0 0;
+  }
+
+  .bareme-table {
+    font-size: 0.75rem;
+    margin: 8px 0;
+  }
+
+  .bareme-table div {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    border-bottom: 1px dotted rgba(0,0,0,0.08);
+  }
+
+  .bareme-add-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+
+  .bareme-add-row input {
+    flex: 1;
+    border: 1.5px solid rgba(0,0,0,0.08);
+    border-radius: 10px;
+    padding: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.78rem;
+    background: white;
+  }
+
+  .mode-toggle {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    background: var(--bg);
+    padding: 4px;
+    border-radius: 14px;
+  }
+
+  .mode-btn {
+    flex: 1;
+    padding: 9px 6px;
+    border: none;
+    background: transparent;
+    color: var(--ink-soft);
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 0.8rem;
+    border-radius: 10px;
+    cursor: pointer;
+  }
+
+  .mode-btn.active {
+    background: var(--card);
+    color: var(--ink);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  }
+
+  textarea#smsInput {
+    width: 100%;
+    min-height: 90px;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    padding: 12px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    background: var(--bg);
+    color: var(--ink);
+    resize: vertical;
+    margin-bottom: 10px;
+  }
+
+  .sms-actions {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .analyze-btn {
+    border: none;
+    background: var(--ink);
+    color: white;
+    padding: 11px 18px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .clear-btn {
+    border: none;
+    background: var(--bg);
+    color: var(--ink-soft);
+    padding: 11px 16px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .preview-card {
+    border: none;
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: var(--accent-soft);
+  }
+
+  .preview-title {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0 0 10px;
+  }
+
+  .preview-warn {
+    font-size: 0.72rem;
+    color: var(--danger);
+    margin: -4px 0 10px;
+    font-weight: 500;
+  }
+
+  .preview-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .confirm-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .confirm-btn {
+    flex: 1;
+    border: none;
+    background: var(--good);
+    color: white;
+    padding: 11px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .cancel-btn {
+    border: none;
+    background: var(--card);
+    color: var(--ink-soft);
+    padding: 11px 14px;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .loading, .save-note {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    padding: 8px;
+  }
+
+  .lock-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    z-index: 999;
+  }
+
+  .lock-card {
+    max-width: 340px;
+    width: 100%;
+    border: none;
+    border-radius: 22px;
+    background: var(--card);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    padding: 28px 22px;
+    text-align: center;
+  }
+
+  .lock-card h1 {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 1.3rem;
+    margin: 0 0 6px;
+    letter-spacing: -0.3px;
+  }
+
+  .lock-card p {
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    margin: 0 0 18px;
+    line-height: 1.5;
+  }
+
+  .lock-card input {
+    width: 100%;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+
+  .lock-card button {
+    width: 100%;
+    border: none;
+    background: var(--ink);
+    color: white;
+    padding: 12px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+
+  .lock-error {
+    color: var(--danger);
+    font-size: 0.75rem;
+    margin-top: 12px;
+    display: none;
+    font-weight: 500;
+  }
+
+  @media (max-width: 420px) {
+    .balances { grid-template-columns: 1fr 1fr; }
+    .balance-card .value { font-size: 0.85rem; }
+    header.title h1 { font-size: 1.2rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="lock-screen" id="lockScreen" style="display:none;">
+  <div class="lock-card">
+    <h1>Cahier Mobile Money</h1>
+    <p>Connecte-toi avec les identifiants que ton fournisseur t'a donnés.</p>
+    <form id="lockForm">
+      <input type="email" id="lockEmail" placeholder="Adresse email" autocomplete="username" autocapitalize="off" style="margin-bottom:10px;">
+      <input type="password" id="lockInput" placeholder="Mot de passe" autocomplete="current-password" autocapitalize="off">
+      <button type="submit">Se connecter</button>
+    </form>
+    <p class="lock-error" id="lockError">Identifiants incorrects — réessaie.</p>
+  </div>
+</div>
+
+<div class="book" id="appRoot" style="display:none;">
+  <header class="title">
+    <h1>Cahier Mobile Money</h1>
+    <span class="today" id="todayLabel"></span>
+  </header>
+
+  <div style="text-align:right; margin: -8px 0 12px;">
+    <button type="button" id="logoutBtn" style="background:none;border:none;color:var(--ink-soft);font-size:0.72rem;text-decoration:underline;cursor:pointer;">Se déconnecter</button>
+  </div>
+
+  <div class="period-row" id="periodRow"></div>
+  <div class="period-label" id="periodLabel"></div>
+
+  <div class="global-summary-row">
+    <div class="global-summary">
+      <span class="g-label">Solde (<span id="soldeLabel">tout l'historique</span>)</span>
+      <span class="g-value" id="globalSolde">0 F</span>
+    </div>
+    <div class="global-summary">
+      <span class="g-label">Commissions (<span id="commLabel">tout l'historique</span>)</span>
+      <span class="g-value comm" id="globalComm">0 F</span>
+    </div>
+  </div>
+
+  <button type="button" class="pdf-btn" id="downloadPdfBtn">Télécharger l'inventaire en PDF</button>
+  <button type="button" class="pdf-btn" id="trendsBtn">Voir les tendances</button>
+  <div id="trendsPanel"></div>
+
+  <div class="tabs" id="tabs"></div>
+  <div class="panel" id="panel"></div>
+
+  <div class="loading" id="loadingMsg" style="display:none;">Chargement…</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.14.1/firebase-app-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.14.1/firebase-auth-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/firebase@10.14.1/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ============================================================
+// CONFIGURATION FIREBASE — projet "cahier-mobile-money"
+// ============================================================
+const firebaseConfig = {
+  apiKey: "AIzaSyDDnpygt6lQZwXlXPy3kIa3kt5TcG9wiwY",
+  authDomain: "cahier-mobile-money.firebaseapp.com",
+  projectId: "cahier-mobile-money",
+  storageBucket: "cahier-mobile-money.firebasestorage.app",
+  messagingSenderId: "658486107717",
+  appId: "1:658486107717:web:3cf12ce43484de459b0d2c"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const firestore = firebase.firestore();
+// ============================================================
+
+const OPERATORS = [
+  { key: 'orange', name: 'Orange Money', color: 'var(--orange)' },
+  { key: 'moov', name: 'Moov Money', color: 'var(--moov)' },
+  { key: 'mtn', name: 'MTN Money', color: '#b89600' },
+  { key: 'wave', name: 'Wave', color: 'var(--wave)' }
+];
+
+let currentOp = 'orange';
+let currentType = 'depot';
+let entryMode = 'sms';
+let smsDraft = null;
+let currentPeriod = 'all';
+let editingComm = false;
+let showBareme = false;
+let showTrends = false;
+let data = { orange: [], moov: [], mtn: [], wave: [] };
+let baremes = {
+  orange: [
+    { volume: 300000, commission: 1800 },
+    { volume: 459400, commission: 1987 },
+    { volume: 600000, commission: 2000 },
+    { volume: 1000000, commission: 3600 }
+  ],
+  moov: [], mtn: [], wave: []
+};
+let dailyCommissions = { orange: {}, moov: {}, mtn: {}, wave: {} };
+let ready = false;
+
+// Périodicité à laquelle chaque opérateur verse sa commission
+const COMMISSION_GRANULARITY = { orange: 'day', mtn: 'month', moov: 'day', wave: null };
+
+const PERIODS = [
+  { key: 'today', label: 'Jour' },
+  { key: 'week', label: 'Semaine' },
+  { key: 'month', label: 'Mois' },
+  { key: 'year', label: 'Année' },
+  { key: 'all', label: 'Tout' }
+];
+
+const PERIOD_TEXT = {
+  today: "aujourd'hui",
+  week: 'les 7 derniers jours',
+  month: 'ce mois-ci',
+  year: 'cette année',
+  all: "tout l'historique"
+};
+
+const STORAGE_KEY = 'momo-transactions-v1';
+
+function fmt(n) {
+  return Number(n).toLocaleString('fr-FR') + ' F';
+}
+
+function todayISO() {
+  const d = new Date();
+  return d.toISOString().slice(0,10);
+}
+
+function cleanNumber(str) {
+  const s = str.replace(/\s/g, '').trim();
+  // Cas "1234.56" ou "1234,56" : 2 chiffres après le séparateur = décimales
+  const decMatch = s.match(/^(\d[\d.,]*?)[.,](\d{2})$/);
+  if (decMatch) {
+    const intPart = decMatch[1].replace(/[.,]/g, '');
+    return parseFloat(intPart + '.' + decMatch[2]);
+  }
+  // Sinon, on traite tous les séparateurs comme des séparateurs de milliers
+  return parseFloat(s.replace(/[.,]/g, ''));
+}
+
+function extractSolde(raw) {
+  const m = raw.match(/(?:nouveau solde|solde)[^\d]{0,25}(\d[\d.,\s]*?)\s*f/i);
+  return m ? cleanNumber(m[1]) : null;
+}
+
+function extractHour(raw) {
+  const m = raw.match(/\b([01]?\d|2[0-3]):([0-5]\d)(?::[0-5]\d)?\b/);
+  return m ? parseInt(m[1], 10) : null;
+}
+
+function parseSms(rawText) {
+  const raw = rawText.trim();
+
+  // 1. DÉPÔT — "Le depot vers le 0757490525 est reussi. Montant 1000.00 F, Frais 0.00 F, Commission 0.00 F..."
+  let m = raw.match(/depot vers le\s*\d+\s*est\s*r[ée]ussi[.,]?\s*montant\s*([\d.,\s]+?)\s*f[^\d]*frais\s*([\d.,\s]+?)\s*f[^\d]*commission\s*([\d.,\s]+?)\s*f/i);
+  if (m) {
+    return {
+      type: 'depot', amount: cleanNumber(m[1]), commission: cleanNumber(m[3]),
+      confident: true, isTransfer: false, soldeApres: extractSolde(raw), heure: extractHour(raw)
+    };
+  }
+
+  // 2. RETRAIT — "...Retrait de 0707064634 effectue. Montant 420000.00 F.ID Transaction:..."
+  m = raw.match(/retrait de\s*\d+\s*effectue[.,]?\s*montant\s*([\d.,\s]+?)\s*f/i);
+  if (m) {
+    const commM = raw.match(/commission\s*([\d.,\s]+?)\s*f/i);
+    return {
+      type: 'retrait', amount: cleanNumber(m[1]), commission: commM ? cleanNumber(commM[1]) : 0,
+      confident: true, isTransfer: false, soldeApres: extractSolde(raw), heure: extractHour(raw)
+    };
+  }
+
+  // 3. MTN — DÉPÔT : "Vous avez envoye 15150 FCFA au 2250505464363 le ... Votre nouveau solde est de: ..."
+  m = raw.match(/vous avez envoye\s*([\d.,\s]+?)\s*fcfa au/i);
+  if (m) {
+    return {
+      type: 'depot', amount: cleanNumber(m[1]), commission: 0,
+      confident: true, isTransfer: false, soldeApres: extractSolde(raw), heure: extractHour(raw)
+    };
+  }
+
+  // 4. MTN — RETRAIT : "Le retrait initie ... a ete effectue. Vous pouvez payer le montant: 9900 FCFA..."
+  m = raw.match(/retrait initi[ée].*?(?:a\s*ete\s*effectue|a\s*été\s*effectué)[^\d]*?(?:vous pouvez payer le montant|montant)\s*:?\s*([\d.,\s]+?)\s*fcfa/is);
+  if (m) {
+    const fraisM = raw.match(/frais\s*:?\s*([\d.,\s]+?)\s*fcfa/i);
+    return {
+      type: 'retrait', amount: cleanNumber(m[1]), commission: fraisM ? cleanNumber(fraisM[1]) : 0,
+      confident: true, isTransfer: false, soldeApres: extractSolde(raw), heure: extractHour(raw)
+    };
+  }
+
+  // 5. TRANSFERT (reçu ou envoyé à un revendeur/distributeur) — pas une opération client
+  if (/transfert/i.test(raw)) {
+    const amtM = raw.match(/transfert de\s*([\d.,\s]+?)\s*f/i);
+    return {
+      type: null, amount: amtM ? cleanNumber(amtM[1]) : null, commission: 0,
+      confident: false, isTransfer: true, soldeApres: extractSolde(raw), heure: extractHour(raw)
+    };
+  }
+
+  // 6. Générique de secours (autres opérateurs / formats non reconnus)
+  const t = raw.toLowerCase();
+  const depotWords = ['dépôt', 'depot', 'avez reçu', 'vous avez recu', 'crédité', 'credite', 'a été crédité', 'collecte', 'cash in'];
+  const retraitWords = ['retrait', 'retiré', 'retire', 'décaissement', 'decaissement', 'avez envoyé', 'envoyé à', 'débité', 'debite', 'cash out'];
+  let depotScore = 0, retraitScore = 0;
+  depotWords.forEach(w => { if (t.includes(w)) depotScore++; });
+  retraitWords.forEach(w => { if (t.includes(w)) retraitScore++; });
+  const type = depotScore === retraitScore ? null : (depotScore > retraitScore ? 'depot' : 'retrait');
+
+  const amountMatch = raw.match(/(\d[\d\s.,]{1,12})\s*(?:FCFA|F\s?CFA|XOF|F\b)/i);
+  const amount = amountMatch ? cleanNumber(amountMatch[1]) : null;
+  const commMatch = raw.match(/commission[^\d]{0,15}(\d[\d\s.,]{1,12})\s*(?:FCFA|F\s?CFA|XOF|F\b)?/i);
+  const commission = commMatch ? cleanNumber(commMatch[1]) : 0;
+
+  return {
+    type: type || 'depot', amount, commission,
+    confident: type !== null && amount !== null, isTransfer: false, soldeApres: extractSolde(raw), heure: extractHour(raw)
+  };
+}
+
+function daysAgoISO(n) {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return d.toISOString().slice(0,10);
+}
+
+function inPeriod(dateStr, period) {
+  const today = todayISO();
+  if (period === 'today') return dateStr === today;
+  if (period === 'week') return dateStr >= daysAgoISO(6) && dateStr <= today;
+  if (period === 'month') return dateStr.slice(0,7) === today.slice(0,7);
+  if (period === 'year') return dateStr.slice(0,4) === today.slice(0,4);
+  return true; // 'all'
+}
+
+function filterByPeriod(list) {
+  return list.filter(e => inPeriod(e.date, currentPeriod));
+}
+
+function renderPeriodRow() {
+  const row = document.getElementById('periodRow');
+  row.innerHTML = '';
+  PERIODS.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'period-btn' + (p.key === currentPeriod ? ' active' : '');
+    btn.textContent = p.label;
+    btn.onclick = () => { currentPeriod = p.key; renderPeriodRow(); renderPanel(); renderGlobal(); renderTrends(); };
+    row.appendChild(btn);
+  });
+  document.getElementById('periodLabel').textContent = 'Résultats pour ' + PERIOD_TEXT[currentPeriod];
+  document.getElementById('soldeLabel').textContent = PERIOD_TEXT[currentPeriod];
+  document.getElementById('commLabel').textContent = PERIOD_TEXT[currentPeriod];
+}
+
+function commissionKeyFor(dateStr, granularity) {
+  return granularity === 'month' ? dateStr.slice(0,7) : dateStr;
+}
+
+function currentCommissionKey(granularity) {
+  return commissionKeyFor(todayISO(), granularity);
+}
+
+function keyInCurrentPeriod(key, granularity) {
+  if (granularity === 'month') {
+    const today = todayISO();
+    if (currentPeriod === 'today' || currentPeriod === 'month') return key === today.slice(0,7);
+    if (currentPeriod === 'week') return key === daysAgoISO(6).slice(0,7) || key === today.slice(0,7);
+    if (currentPeriod === 'year') return key.slice(0,4) === today.slice(0,4);
+    return true; // 'all'
+  }
+  return inPeriod(key, currentPeriod);
+}
+
+function todayVolume(opKey) {
+  const today = todayISO();
+  let vol = 0;
+  (data[opKey] || []).forEach(e => { if (e.date === today) vol += e.amount; });
+  return vol;
+}
+
+function periodVolume(opKey, granularity) {
+  const key = currentCommissionKey(granularity);
+  let vol = 0;
+  (data[opKey] || []).forEach(e => { if (commissionKeyFor(e.date, granularity) === key) vol += e.amount; });
+  return vol;
+}
+
+function estimateCommission(opKey, volume) {
+  const bareme = (baremes[opKey] || []).slice().sort((a,b) => a.volume - b.volume);
+  if (!bareme.length || volume <= 0) return null;
+  if (volume <= bareme[0].volume) {
+    return Math.round(volume * (bareme[0].commission / bareme[0].volume));
+  }
+  for (let i = 0; i < bareme.length - 1; i++) {
+    const a = bareme[i], b = bareme[i+1];
+    if (volume >= a.volume && volume <= b.volume) {
+      const ratio = (volume - a.volume) / (b.volume - a.volume);
+      return Math.round(a.commission + ratio * (b.commission - a.commission));
+    }
+  }
+  const last = bareme[bareme.length - 1];
+  const prev = bareme[bareme.length - 2] || { volume: 0, commission: 0 };
+  const slope = (last.commission - prev.commission) / ((last.volume - prev.volume) || 1);
+  return Math.round(last.commission + slope * (volume - last.volume));
+}
+
+function commissionForOperatorPeriod(opKey, periodFilteredList) {
+  const granularity = COMMISSION_GRANULARITY[opKey] || 'day';
+  const dc = dailyCommissions[opKey] || {};
+  const recordedKeys = new Set(Object.keys(dc).filter(k => keyInCurrentPeriod(k, granularity)));
+  let total = 0;
+  recordedKeys.forEach(k => { total += dc[k]; });
+  periodFilteredList.forEach(e => {
+    const k = commissionKeyFor(e.date, granularity);
+    if (!recordedKeys.has(k)) total += (e.commission || 0);
+  });
+  return total;
+}
+
+function generateInventoryPdf() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const pageHeight = doc.internal.pageSize.height;
+  const marginLeft = 14;
+  let y = 18;
+
+  function checkPage(extra) {
+    if (y + extra > pageHeight - 14) {
+      doc.addPage();
+      y = 18;
+    }
+  }
+
+  doc.setFontSize(16);
+  doc.text('Cahier Mobile Money', marginLeft, y); y += 8;
+  doc.setFontSize(10);
+  doc.text(`Inventaire — ${PERIOD_TEXT[currentPeriod]}`, marginLeft, y); y += 5;
+  const now = new Date();
+  doc.text(`Généré le ${now.toLocaleDateString('fr-FR')} à ${now.toLocaleTimeString('fr-FR')}`, marginLeft, y); y += 4;
+  doc.setDrawColor(180);
+  doc.line(marginLeft, y, 196, y); y += 8;
+
+  // Résumé global
+  let totalSolde = 0, totalComm = 0, totalOps = 0;
+  const perOpData = OPERATORS.map(op => {
+    const list = filterByPeriod(data[op.key] || []).slice().sort((a,b) => a.date.localeCompare(b.date) || a.id - b.id);
+    const t = computeTotals(list);
+    const comm = commissionForOperatorPeriod(op.key, list);
+    totalSolde += t.solde;
+    totalComm += comm;
+    totalOps += list.length;
+    return { op, list, totals: t, comm };
+  });
+
+  doc.setFontSize(12);
+  doc.text('Résumé global', marginLeft, y); y += 6;
+  doc.setFontSize(10);
+  doc.text(`Solde total (4 opérateurs) : ${fmt(totalSolde)}`, marginLeft, y); y += 5;
+  doc.text(`Commissions totales : ${fmt(totalComm)}`, marginLeft, y); y += 5;
+  doc.text(`Nombre total d'opérations : ${totalOps}`, marginLeft, y); y += 10;
+
+  perOpData.forEach(({ op, list, totals, comm }) => {
+    checkPage(24);
+    doc.setFontSize(12);
+    doc.text(op.name, marginLeft, y); y += 6;
+    doc.setFontSize(9);
+    doc.text(`Dépôts: ${fmt(totals.depots)}    Retraits: ${fmt(totals.retraits)}    Solde: ${fmt(totals.solde)}    Commission: ${fmt(comm)}    Opérations: ${list.length}`, marginLeft, y);
+    y += 7;
+
+    if (list.length === 0) {
+      doc.setFontSize(9);
+      doc.setTextColor(120);
+      doc.text('Aucune opération pour cette période.', marginLeft + 2, y);
+      doc.setTextColor(0);
+      y += 7;
+    } else {
+      doc.setFontSize(8);
+      list.forEach(e => {
+        checkPage(6);
+        const dateShort = e.date.slice(5).split('-').reverse().join('/');
+        const typeLabel = e.type === 'depot' ? 'Dépôt' : 'Retrait';
+        let line = `${dateShort}  ${typeLabel}  ${fmt(e.amount)}`;
+        if (e.commission) line += `  (comm. ${fmt(e.commission)})`;
+        if (e.note) line += `  — ${e.note}`;
+        doc.text(line, marginLeft + 2, y);
+        y += 4.5;
+      });
+    }
+    y += 6;
+  });
+
+  const filename = `inventaire-momo-${currentPeriod}-${todayISO()}.pdf`;
+  doc.save(filename);
+}
+
+function renderTabs() {
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  OPERATORS.forEach(op => {
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (op.key === currentOp ? ' active' : '');
+    btn.dataset.op = op.key;
+    btn.textContent = op.name;
+    btn.onclick = () => { currentOp = op.key; editingComm = false; showBareme = false; renderTabs(); renderPanel(); };
+    tabs.appendChild(btn);
+  });
+}
+
+function computeTotals(list) {
+  let depots = 0, retraits = 0, commissions = 0;
+  list.forEach(e => {
+    if (e.type === 'depot') depots += e.amount;
+    else retraits += e.amount;
+    commissions += (e.commission || 0);
+  });
+  return { depots, retraits, solde: depots - retraits, commissions };
+}
+
+function renderTrends() {
+  const container = document.getElementById('trendsPanel');
+  if (!showTrends) { container.innerHTML = ''; return; }
+
+  let all = [];
+  OPERATORS.forEach(op => {
+    const list = filterByPeriod(data[op.key] || []);
+    list.forEach(e => all.push(Object.assign({}, e, { op: op.key, opName: op.name })));
+  });
+
+  if (all.length === 0) {
+    container.innerHTML = `<div class="trends-card"><div class="trend-empty">Aucune opération pour ${PERIOD_TEXT[currentPeriod]}.</div></div>`;
+    return;
+  }
+
+  // Par opérateur
+  const byOp = {};
+  OPERATORS.forEach(op => { byOp[op.key] = { count: 0, volume: 0, name: op.name }; });
+  all.forEach(e => { byOp[e.op].count++; byOp[e.op].volume += e.amount; });
+  const opRanked = OPERATORS.map(op => byOp[op.key]).sort((a,b) => b.count - a.count);
+  const maxOpCount = opRanked[0].count || 1;
+
+  // Par tranche de montant
+  const buckets = [
+    { label: '< 2 000 F', min: 0, max: 2000 },
+    { label: '2 000 – 5 000 F', min: 2000, max: 5000 },
+    { label: '5 000 – 10 000 F', min: 5000, max: 10000 },
+    { label: '10 000 – 25 000 F', min: 10000, max: 25000 },
+    { label: '25 000 – 50 000 F', min: 25000, max: 50000 },
+    { label: '50 000 – 100 000 F', min: 50000, max: 100000 },
+    { label: '100 000 – 250 000 F', min: 100000, max: 250000 },
+    { label: '250 000 – 500 000 F', min: 250000, max: 500000 },
+    { label: '500 000 F et plus', min: 500000, max: Infinity }
+  ];
+  buckets.forEach(b => { b.count = 0; });
+  all.forEach(e => {
+    const b = buckets.find(bk => e.amount >= bk.min && e.amount < bk.max);
+    if (b) b.count++;
+  });
+  const activeBuckets = buckets.filter(b => b.count > 0).sort((a,b) => b.count - a.count);
+  const maxBucketCount = activeBuckets.length ? activeBuckets[0].count : 1;
+
+  // Heures de pointe
+  const hourBlocks = [
+    { label: '00h–04h', min: 0, max: 4 },
+    { label: '04h–08h', min: 4, max: 8 },
+    { label: '08h–12h', min: 8, max: 12 },
+    { label: '12h–16h', min: 12, max: 16 },
+    { label: '16h–20h', min: 16, max: 20 },
+    { label: '20h–24h', min: 20, max: 24 }
+  ];
+  hourBlocks.forEach(h => { h.count = 0; });
+  let withHour = 0;
+  all.forEach(e => {
+    if (e.hour === null || e.hour === undefined) return;
+    withHour++;
+    const h = hourBlocks.find(hb => e.hour >= hb.min && e.hour < hb.max);
+    if (h) h.count++;
+  });
+  const maxHourCount = Math.max(1, ...hourBlocks.map(h => h.count));
+
+  function bar(label, stat, count, max) {
+    const pct = Math.max(4, Math.round((count / max) * 100));
+    return `
+      <div class="trend-row">
+        <div class="trend-row-label"><span class="name">${label}</span><span class="stat">${stat}</span></div>
+        <div class="trend-bar-bg"><div class="trend-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+    `;
+  }
+
+  let html = `<div class="trends-card">`;
+  html += `<div class="trends-section-title">Opérateur le plus demandé</div>`;
+  opRanked.forEach(o => {
+    html += bar(o.name, `${o.count} opération${o.count>1?'s':''} · ${fmt(o.volume)}`, o.count, maxOpCount);
+  });
+
+  html += `<div class="trends-section-title">Tranches de montants les plus fréquentes</div>`;
+  activeBuckets.slice(0, 6).forEach(b => {
+    html += bar(b.label, `${b.count} opération${b.count>1?'s':''}`, b.count, maxBucketCount);
+  });
+
+  html += `<div class="trends-section-title">Heures de pointe</div>`;
+  if (withHour === 0) {
+    html += `<div class="trend-empty">Pas encore assez de données horaires — reviens après quelques transactions enregistrées.</div>`;
+  } else {
+    hourBlocks.forEach(h => {
+      html += bar(h.label, `${h.count} opération${h.count>1?'s':''}`, h.count, maxHourCount);
+    });
+  }
+
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function renderGlobal() {
+  let total = 0, totalComm = 0;
+  OPERATORS.forEach(op => {
+    const list = filterByPeriod(data[op.key] || []);
+    const t = computeTotals(list);
+    total += t.solde;
+    totalComm += commissionForOperatorPeriod(op.key, list);
+  });
+  const el = document.getElementById('globalSolde');
+  el.textContent = fmt(total);
+  el.className = 'g-value ' + (total >= 0 ? 'pos' : 'neg');
+  document.getElementById('globalComm').textContent = fmt(totalComm);
+}
+
+function renderSmsMode() {
+  if (smsDraft) {
+    return `
+      <div class="preview-card">
+        <p class="preview-title">Voici ce que j'ai compris :</p>
+        ${smsDraft.isTransfer ? '<p class="preview-warn">Ce SMS ressemble à un transfert de fonds avec ton revendeur (pas une opération client). Vérifie bien avant d\'enregistrer — ou annule si ce n\'est pas un dépôt/retrait client.</p>' : ''}
+        ${!smsDraft.confident && !smsDraft.isTransfer ? '<p class="preview-warn">Je ne suis pas sûr d\'avoir bien lu ce SMS — vérifie les champs avant de valider.</p>' : ''}
+        <div class="preview-grid">
+          <div class="field" style="flex-basis:100%;">
+            <label>Type d'opération</label>
+            <div class="seg">
+              <button type="button" data-type="depot" class="draft-type ${smsDraft.type==='depot' ? 'selected depot' : ''}">Dépôt</button>
+              <button type="button" data-type="retrait" class="draft-type ${smsDraft.type==='retrait' ? 'selected retrait' : ''}">Retrait</button>
+            </div>
+          </div>
+          <div class="field">
+            <label>Montant (FCFA)</label>
+            <input type="number" id="draftAmount" value="${smsDraft.amount ?? ''}" min="0" step="1">
+          </div>
+          <div class="field">
+            <label>Commission (FCFA)</label>
+            <input type="number" id="draftCommission" value="${smsDraft.commission || 0}" min="0" step="1">
+          </div>
+          <div class="field">
+            <label>Date</label>
+            <input type="date" id="draftDate" value="${todayISO()}">
+          </div>
+        </div>
+        ${smsDraft.soldeApres !== null && smsDraft.soldeApres !== undefined ? `<p style="font-size:0.72rem;color:var(--ink-soft);margin:-6px 0 12px;">Solde annoncé par l'opérateur après l'opération : ${fmt(smsDraft.soldeApres)}</p>` : ''}
+        <div class="confirm-row">
+          <button class="confirm-btn" id="confirmDraft">Confirmer et enregistrer</button>
+          <button class="cancel-btn" id="cancelDraft">Annuler</button>
+        </div>
+      </div>
+    `;
+  }
+  return `
+    <textarea id="smsInput" placeholder="Colle ici le SMS de confirmation reçu de l'opérateur..."></textarea>
+    <div class="sms-actions">
+      <button type="button" class="analyze-btn" id="analyzeBtn">Analyser le SMS</button>
+      <button type="button" class="clear-btn" id="clearSmsBtn">Effacer</button>
+    </div>
+  `;
+}
+
+function renderManualForm() {
+  return `
+    <form class="entry" id="entryForm">
+      <div class="field" style="flex-basis:100%;">
+        <label>Type d'opération</label>
+        <div class="seg">
+          <button type="button" data-type="depot" class="${currentType==='depot' ? 'selected depot' : ''}">Dépôt</button>
+          <button type="button" data-type="retrait" class="${currentType==='retrait' ? 'selected retrait' : ''}">Retrait</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Montant (FCFA)</label>
+        <input type="number" id="amountInput" placeholder="0" min="0" step="1" required>
+      </div>
+      <div class="field">
+        <label>Date</label>
+        <input type="date" id="dateInput" value="${todayISO()}">
+      </div>
+      <div class="field">
+        <label>Commission (FCFA)</label>
+        <input type="number" id="commissionInput" placeholder="0" min="0" step="1">
+      </div>
+      <div class="field" style="flex-basis:100%;">
+        <label>Note (client, réf...) — facultatif</label>
+        <input type="text" id="noteInput" placeholder="ex: Retrait Kouassi">
+      </div>
+      <button type="submit" class="add-btn">Ajouter</button>
+    </form>
+  `;
+}
+
+function wireSmsMode() {
+  if (smsDraft) {
+    document.querySelectorAll('.draft-type').forEach(b => {
+      b.onclick = () => { smsDraft.type = b.dataset.type; renderPanel(); };
+    });
+    document.getElementById('confirmDraft').onclick = async () => {
+      if (smsDraft.type !== 'depot' && smsDraft.type !== 'retrait') return;
+      const amount = parseFloat(document.getElementById('draftAmount').value);
+      const commission = parseFloat(document.getElementById('draftCommission').value) || 0;
+      const date = document.getElementById('draftDate').value || todayISO();
+      if (!amount || amount <= 0) return;
+      const id = Date.now();
+      const hour = (smsDraft.heure !== null && smsDraft.heure !== undefined) ? smsDraft.heure : new Date(id).getHours();
+      const entry = { id, type: smsDraft.type, amount, date, note: '', commission, hour };
+      data[currentOp] = data[currentOp] || [];
+      data[currentOp].push(entry);
+      smsDraft = null;
+      await save();
+      renderPanel();
+      renderGlobal();
+      renderTrends();
+    };
+    document.getElementById('cancelDraft').onclick = () => { smsDraft = null; renderPanel(); };
+  } else {
+    document.getElementById('analyzeBtn').onclick = () => {
+      const text = document.getElementById('smsInput').value.trim();
+      if (!text) return;
+      smsDraft = parseSms(text);
+      renderPanel();
+    };
+    document.getElementById('clearSmsBtn').onclick = () => {
+      document.getElementById('smsInput').value = '';
+    };
+  }
+}
+
+function wireManualForm() {
+  document.querySelectorAll('#entryForm .seg button').forEach(b => {
+    b.onclick = () => { currentType = b.dataset.type; renderPanel(); };
+  });
+
+  document.getElementById('entryForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const amount = parseFloat(document.getElementById('amountInput').value);
+    const date = document.getElementById('dateInput').value || todayISO();
+    const note = document.getElementById('noteInput').value.trim();
+    const commission = parseFloat(document.getElementById('commissionInput').value) || 0;
+    if (!amount || amount <= 0) return;
+
+    const id = Date.now();
+    const entry = { id, type: currentType, amount, date, note, commission, hour: new Date(id).getHours() };
+    data[currentOp] = data[currentOp] || [];
+    data[currentOp].push(entry);
+    await save();
+    renderPanel();
+    renderGlobal();
+    renderTrends();
+  };
+}
+
+function renderCommissionDay(opKey) {
+  const granularity = COMMISSION_GRANULARITY[opKey];
+  if (!granularity) return '';
+
+  const key = currentCommissionKey(granularity);
+  const vol = periodVolume(opKey, granularity);
+  const recorded = dailyCommissions[opKey] ? dailyCommissions[opKey][key] : undefined;
+  const hasBareme = (baremes[opKey] || []).length > 0;
+  const periodLabel = granularity === 'month' ? 'ce mois-ci' : "aujourd'hui";
+  const waitNote = granularity === 'month'
+    ? "En attente du relevé mensuel de commission de l'opérateur."
+    : "Estimation à partir du barème connu — remplace-la par le vrai montant dès que le message de palier de l'opérateur arrive.";
+
+  if (!hasBareme && recorded === undefined && vol === 0) return '';
+
+  const estimate = (!hasBareme) ? null : estimateCommission(opKey, vol);
+
+  let inner = '';
+  if (granularity === 'month') {
+    inner += `
+      <div class="cd-row">
+        <span class="cd-label">Cumul aujourd'hui (dépôts + retraits)</span>
+        <span class="cd-value">${fmt(todayVolume(opKey))}</span>
+      </div>
+      <div class="cd-row">
+        <span class="cd-label">Cumul ce mois-ci (dépôts + retraits)</span>
+        <span class="cd-value">${fmt(vol)}</span>
+      </div>
+    `;
+  } else {
+    inner += `
+      <div class="cd-row">
+        <span class="cd-label">Cumul ${periodLabel} (dépôts + retraits)</span>
+        <span class="cd-value">${fmt(vol)}</span>
+      </div>
+    `;
+  }
+
+  if (recorded !== undefined && !editingComm) {
+    inner += `
+      <div class="cd-row">
+        <span class="cd-label">Commission confirmée ${periodLabel}</span>
+        <span class="cd-value comm">${fmt(recorded)}</span>
+      </div>
+      <button type="button" class="cd-edit-btn" id="editCommBtn">Corriger</button>
+    `;
+  } else {
+    if (estimate !== null) {
+      inner += `
+        <div class="cd-row">
+          <span class="cd-label">Estimation (barème)</span>
+          <span class="cd-value comm">≈ ${fmt(estimate)}</span>
+        </div>
+        <p class="cd-note">${waitNote}</p>
+      `;
+    } else if (granularity === 'month') {
+      inner += `<p class="cd-note">${waitNote}</p>`;
+    }
+    inner += `
+      <div class="cd-input-row">
+        <input type="number" id="commRecordInput" placeholder="Montant annoncé par l'opérateur (F)" min="0" step="1" value="${recorded !== undefined ? recorded : ''}">
+        <button type="button" class="cd-record-btn" id="recordCommBtn">Enregistrer</button>
+      </div>
+    `;
+  }
+
+  if (hasBareme) {
+    inner += `<button type="button" class="bareme-toggle" id="baremeToggle">${showBareme ? '▾' : '▸'} Barème utilisé pour l'estimation (${opKey})</button>`;
+    if (showBareme) {
+      const sorted = (baremes[opKey] || []).slice().sort((a,b) => a.volume - b.volume);
+      inner += `<div class="bareme-table">`;
+      sorted.forEach(p => {
+        inner += `<div><span>${fmt(p.volume)} cumul</span><span>${fmt(p.commission)}</span></div>`;
+      });
+      inner += `</div>
+        <div class="bareme-add-row">
+          <input type="number" id="baremeVolInput" placeholder="Cumul (F)" min="0" step="1">
+          <input type="number" id="baremeCommInput" placeholder="Commission (F)" min="0" step="1">
+          <button type="button" class="cd-record-btn" id="addBaremeBtn">Ajouter</button>
+        </div>`;
+    }
+  }
+
+  return `<div class="comm-day-card">${inner}</div>`;
+}
+
+function wireCommissionDay(opKey) {
+  const granularity = COMMISSION_GRANULARITY[opKey];
+  if (!granularity) return;
+  const key = currentCommissionKey(granularity);
+
+  const editBtn = document.getElementById('editCommBtn');
+  if (editBtn) editBtn.onclick = () => { editingComm = true; renderPanel(); };
+
+  const recordBtn = document.getElementById('recordCommBtn');
+  if (recordBtn) recordBtn.onclick = async () => {
+    const val = parseFloat(document.getElementById('commRecordInput').value);
+    if (!val || val < 0) return;
+    dailyCommissions[opKey] = dailyCommissions[opKey] || {};
+    dailyCommissions[opKey][key] = val;
+    editingComm = false;
+    await save();
+    renderPanel();
+    renderGlobal();
+    renderTrends();
+  };
+
+  const baremeToggle = document.getElementById('baremeToggle');
+  if (baremeToggle) baremeToggle.onclick = () => { showBareme = !showBareme; renderPanel(); };
+
+  const addBaremeBtn = document.getElementById('addBaremeBtn');
+  if (addBaremeBtn) addBaremeBtn.onclick = async () => {
+    const vol = parseFloat(document.getElementById('baremeVolInput').value);
+    const comm = parseFloat(document.getElementById('baremeCommInput').value);
+    if (!vol || vol <= 0 || !comm || comm < 0) return;
+    baremes[opKey] = baremes[opKey] || [];
+    baremes[opKey] = baremes[opKey].filter(p => p.volume !== vol);
+    baremes[opKey].push({ volume: vol, commission: comm });
+    await save();
+    renderPanel();
+    renderGlobal();
+    renderTrends();
+  };
+}
+
+function renderPanel() {
+  const op = OPERATORS.find(o => o.key === currentOp);
+  const list = filterByPeriod(data[currentOp] || []).slice().sort((a,b) => b.date.localeCompare(a.date) || b.id - a.id);
+  const totals = computeTotals(list);
+  totals.commissions = commissionForOperatorPeriod(currentOp, list);
+
+  const panel = document.getElementById('panel');
+  panel.innerHTML = `
+    <h2 class="op-name" style="color:${op.color}">${op.name}</h2>
+    <div class="balances">
+      <div class="balance-card">
+        <div class="label">Dépôts reçus</div>
+        <div class="value">${fmt(totals.depots)}</div>
+      </div>
+      <div class="balance-card">
+        <div class="label">Retraits payés</div>
+        <div class="value">${fmt(totals.retraits)}</div>
+      </div>
+      <div class="balance-card solde">
+        <div class="label">Solde net</div>
+        <div class="value ${totals.solde >= 0 ? 'pos' : 'neg'}">${fmt(totals.solde)}</div>
+      </div>
+      <div class="balance-card">
+        <div class="label">Commissions</div>
+        <div class="value comm">${fmt(totals.commissions)}</div>
+      </div>
+    </div>
+
+    ${renderCommissionDay(currentOp)}
+
+    <div class="mode-toggle">
+      <button class="mode-btn ${entryMode === 'sms' ? 'active' : ''}" data-mode="sms">Coller un SMS</button>
+      <button class="mode-btn ${entryMode === 'manual' ? 'active' : ''}" data-mode="manual">Saisie manuelle</button>
+    </div>
+
+    ${entryMode === 'sms' ? renderSmsMode() : renderManualForm()}
+
+    <div class="hist-title">Historique — ${list.length} opération${list.length > 1 ? 's' : ''}</div>
+    <div id="history"></div>
+  `;
+
+  panel.querySelectorAll('.mode-btn').forEach(b => {
+    b.onclick = () => { entryMode = b.dataset.mode; smsDraft = null; renderPanel(); };
+  });
+
+  wireCommissionDay(currentOp);
+
+  if (entryMode === 'sms') {
+    wireSmsMode();
+  } else {
+    wireManualForm();
+  }
+
+  const histEl = document.getElementById('history');
+  if (list.length === 0) {
+    const msg = currentPeriod === 'all'
+      ? 'Aucune opération enregistrée pour le moment.<br>Ajoutez votre premier dépôt ou retrait ci-dessus.'
+      : `Aucune opération pour ${PERIOD_TEXT[currentPeriod]}.`;
+    histEl.innerHTML = `<div class="empty">${msg}</div>`;
+  } else {
+    histEl.innerHTML = '';
+    list.forEach(e => {
+      const row = document.createElement('div');
+      row.className = 'entry-row';
+      const dateShort = e.date.slice(5).split('-').reverse().join('/');
+      row.innerHTML = `
+        <span class="date">${dateShort}</span>
+        <span class="type-badge ${e.type}">${e.type === 'depot' ? 'Dépôt' : 'Retrait'}</span>
+        <span class="note">${e.note ? e.note : ''}</span>
+        <span class="amount ${e.type === 'depot' ? 'pos' : 'neg'}">
+          ${e.type === 'depot' ? '+' : '−'}${fmt(e.amount)}
+          ${e.commission ? `<br><span style="font-size:0.65rem;font-weight:500;color:var(--comm);">+${fmt(e.commission)} comm.</span>` : ''}
+        </span>
+        <button class="del" title="Supprimer" data-id="${e.id}">✕</button>
+      `;
+      histEl.appendChild(row);
+    });
+    histEl.querySelectorAll('.del').forEach(btn => {
+      btn.onclick = async () => {
+        const id = Number(btn.dataset.id);
+        data[currentOp] = data[currentOp].filter(x => x.id !== id);
+        await save();
+        renderPanel();
+        renderGlobal();
+        renderTrends();
+      };
+    });
+  }
+}
+
+async function load() {
+  document.getElementById('loadingMsg').style.display = 'block';
+  try {
+    const uid = auth.currentUser.uid;
+    const docSnap = await firestore.collection('users').doc(uid).get();
+    if (docSnap.exists) {
+      const parsed = docSnap.data();
+      data = Object.assign({ orange: [], moov: [], mtn: [], wave: [] }, parsed.transactions || {});
+      baremes = Object.assign({}, baremes, parsed.baremes || {});
+      dailyCommissions = Object.assign({ orange: {}, moov: {}, mtn: {}, wave: {} }, parsed.dailyCommissions || {});
+    }
+  } catch (err) {
+    console.log('Pas de données existantes ou erreur de lecture.', err);
+  }
+  document.getElementById('loadingMsg').style.display = 'none';
+  ready = true;
+}
+
+async function save() {
+  try {
+    const uid = auth.currentUser.uid;
+    await firestore.collection('users').doc(uid).set({
+      transactions: data,
+      baremes: baremes,
+      dailyCommissions: dailyCommissions,
+      updatedAt: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('Erreur de sauvegarde', err);
+    alert("La sauvegarde a échoué. Vérifie ta connexion internet.");
+  }
+}
+
+async function init() {
+  document.getElementById('todayLabel').textContent = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  await load();
+  renderPeriodRow();
+  renderTabs();
+  renderPanel();
+  renderGlobal();
+  renderTrends();
+  document.getElementById('downloadPdfBtn').onclick = generateInventoryPdf;
+  document.getElementById('trendsBtn').onclick = () => {
+    showTrends = !showTrends;
+    document.getElementById('trendsBtn').textContent = showTrends ? 'Masquer les tendances' : 'Voir les tendances';
+    renderTrends();
+  };
+}
+
+function authErrorMessage(code) {
+  const map = {
+    'auth/invalid-email': "Adresse email invalide.",
+    'auth/user-disabled': "Ce compte a été désactivé.",
+    'auth/user-not-found': "Identifiants incorrects — réessaie.",
+    'auth/wrong-password': "Identifiants incorrects — réessaie.",
+    'auth/invalid-credential': "Identifiants incorrects — réessaie.",
+    'auth/too-many-requests': "Trop de tentatives — réessaie dans quelques minutes.",
+    'auth/network-request-failed': "Problème de connexion internet."
+  };
+  return map[code] || "Une erreur est survenue — réessaie.";
+}
+
+document.getElementById('lockForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = document.getElementById('lockEmail').value.trim();
+  const password = document.getElementById('lockInput').value;
+  const errorMsg = document.getElementById('lockError');
+  errorMsg.style.display = 'none';
+  auth.signInWithEmailAndPassword(email, password).catch(err => {
+    errorMsg.textContent = authErrorMessage(err.code);
+    errorMsg.style.display = 'block';
+  });
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  auth.signOut();
+});
+
+auth.onAuthStateChanged(user => {
+  if (user) {
+    document.getElementById('lockScreen').style.display = 'none';
+    document.getElementById('appRoot').style.display = '';
+    document.getElementById('lockInput').value = '';
+    init();
+  } else {
+    document.getElementById('appRoot').style.display = 'none';
+    document.getElementById('lockScreen').style.display = 'flex';
+    ready = false;
+  }
+});
+</script>
+</body>
+</html>
